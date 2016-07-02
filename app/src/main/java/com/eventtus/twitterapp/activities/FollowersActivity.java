@@ -69,8 +69,8 @@ public class FollowersActivity extends AppCompatActivity implements AdapterView.
         // TODO Auto-generated method stubs
         try{
             Globals.selectedFollowerPosition = position-1;
-//            Intent intent = new Intent(this, FollowerDetailsActivity.class);
-//            startActivity(intent);
+            Intent intent = new Intent(this, FollowerDetailsActivity.class);
+            startActivity(intent);
 
         }catch( IndexOutOfBoundsException e){
             Log.d("Bounds Exception", "caught");

@@ -27,10 +27,28 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
         </activity>
+        <activity
+            android:name=".activities.FollowerDetailsActivity"
+            android:screenOrientation="portrait"
+            android:label="Follower Information"
+            android:launchMode="singleTop">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
+        <activity
+            android:name=".activities.TimeLineActivity"
+            android:screenOrientation="portrait"
+            android:label="TimeLine"
+            android:launchMode="singleTop">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="8e906dcb396b63b29f2a4eb01a9d68ed8a0c27c8" />
     </application>
 
-    
+
 </manifest>
