@@ -46,8 +46,6 @@ public class MainActivity extends AppCompatActivity {
                 Globals.userID = Long.toString(userid);
                 Globals.userName = Globals.session.getUserName();
 
-                System.out.println("attia successfully logged in .. hi "+Globals.session.getUserName());
-
             }
 
             @Override
