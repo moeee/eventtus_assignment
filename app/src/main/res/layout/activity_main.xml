@@ -17,5 +17,14 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true" />
 
+    <Spinner
+        android:id="@+id/spinner_list"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/twitter_login_button"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="30dp"
+        android:background="@android:drawable/spinner_background"/>
+
 
 </RelativeLayout>

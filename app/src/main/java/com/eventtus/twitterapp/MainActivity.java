@@ -8,6 +8,10 @@ import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.eventtus.twitterapp.activities.FollowersActivity;
@@ -25,13 +29,17 @@ import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import io.fabric.sdk.android.Fabric;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
     TwitterLoginButton loginButton;
     ProgressDialog pd;
+    Spinner spinner;
+    List<String> savedLoginsList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +53,11 @@ public class MainActivity extends AppCompatActivity {
         StrictMode.setThreadPolicy(policy);
 
         getViews();
-        checkIfAlreadyLoggedin();
+        getAllSharedPref();
+
+        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, savedLoginsList);
+        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(dataAdapter);
 
         loginButton.setCallback(new Callback<TwitterSession>() {
             @Override
@@ -57,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
                 Globals.userID = Long.toString(userid);
                 Globals.userName = Globals.session.getUserName();
 
-                storeSessionInSharedPref();
+                storeSessionInSharedPref(Globals.userName, Globals.session);
 
                 getFollowers();
 
@@ -77,6 +89,32 @@ public class MainActivity extends AppCompatActivity {
         loginButton.onActivityResult(requestCode, resultCode, data);
     }
 
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        // On selecting a spinner item
+        String item = parent.getItemAtPosition(position).toString();
+
+        Map<String,?> keys = Globals.prefs.getAll();
+        for(Map.Entry<String,?> entry : keys.entrySet()) {
+            if (entry.getKey().equals(item)) {
+                Globals.prefs = getSharedPreferences("TwitterApp", Context.MODE_PRIVATE);
+                Gson gson = new Gson();
+                String str = Globals.prefs.getString(entry.getKey(), "");
+                TwitterSession sessionObj = gson.fromJson(str, TwitterSession.class);
+                Globals.session = sessionObj;
+                long userid = Globals.session.getUserId();
+                Globals.userID = Long.toString(userid);
+                Globals.userName = Globals.session.getUserName();
+                getFollowers();
+            }
+        }
+    }
+
+    public void onNothingSelected(AdapterView<?> arg0) {
+        // TODO Auto-generated method stub
+
+    }
+
     void getViews(){
         String pdw = "Loading.. Please wait";
         pd = new ProgressDialog(this);
@@ -84,16 +122,9 @@ public class MainActivity extends AppCompatActivity {
         pd.setMessage(pdw);
 
         loginButton = (TwitterLoginButton) findViewById(R.id.twitter_login_button);
-    }
-
-    void checkIfAlreadyLoggedin(){
-        getSessionFromSharedPref();
-        if(Globals.session!=null){
-            long userid = Globals.session.getUserId();
-            Globals.userID = Long.toString(userid);
-            Globals.userName = Globals.session.getUserName();
-            getFollowers();
-        }
+        spinner = (Spinner) findViewById(R.id.spinner_list);
+        spinner.setOnItemSelectedListener(this);
+        savedLoginsList = new ArrayList<String>();
     }
 
     void getFollowers(){
@@ -110,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
                     fObject.setBgImage(result.data.users.get(i).profileBackgroundImageUrl);
                     Globals.followersList.add(fObject);
                 }
-                storeDataInSharedPref();
+                storeDataInSharedPref(Globals.userName,Globals.followersList);
                 if(pd.isShowing()) pd.dismiss();
                 Intent intent = new Intent(MainActivity.this, FollowersActivity.class);
                 startActivity(intent);
@@ -130,36 +161,43 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    void storeSessionInSharedPref(){
+    void storeSessionInSharedPref(String nameKey, TwitterSession session){
         SharedPreferences.Editor prefsEditor = Globals.prefs.edit();
         Gson gson = new Gson();
-        String json = gson.toJson(Globals.session);
-        prefsEditor.putString("Session", json);
+        String json = gson.toJson(session);
+        prefsEditor.putString(nameKey, json);
         prefsEditor.commit();
     }
 
-    void getSessionFromSharedPref(){
-        Globals.prefs = getSharedPreferences("TwitterApp", Context.MODE_PRIVATE);
-        Gson gson = new Gson();
-        String str = Globals.prefs.getString("Session", "");
-        TwitterSession sessionObj = gson.fromJson(str, TwitterSession.class);
-        Globals.session = sessionObj;
-    }
-
-    void storeDataInSharedPref(){
+    void storeDataInSharedPref(String key, ArrayList<Followers> list){
         SharedPreferences.Editor editor = Globals.prefs.edit();
         Gson gson = new Gson();
-        String json = gson.toJson(Globals.followersList);
-        editor.putString("FollowersData", json);
+        String json = gson.toJson(list);
+        editor.putString(key+"-data", json);
         editor.commit();
     }
 
     void getDataFromSharedPref(){
         Globals.prefs = getSharedPreferences("TwitterApp", Context.MODE_PRIVATE);
         Gson gson = new Gson();
-        String json = Globals.prefs.getString("FollowersData", null);
+        String json = Globals.prefs.getString(Globals.userName+"-data", null);
         Type type = new TypeToken<ArrayList<Followers>>() {}.getType();
         Globals.followersList = gson.fromJson(json, type);
+    }
+
+    void getAllSharedPref(){
+        savedLoginsList.add("Select from saved Users");
+        Globals.prefs = getSharedPreferences("TwitterApp", Context.MODE_PRIVATE);
+            Map<String,?> keys = Globals.prefs.getAll();
+
+            for(Map.Entry<String,?> entry : keys.entrySet()){
+                if(!entry.getKey().contains("-data")){
+                    savedLoginsList.add(entry.getKey());
+                }
+
+                Log.d("map values",entry.getKey() + " : " +
+                        entry.getValue().toString());
+            }
     }
 
 }// end of class
