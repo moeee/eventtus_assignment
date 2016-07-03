@@ -55,7 +55,7 @@
         android:layout_centerHorizontal="true"
         android:layout_below="@id/description_indetails"
         android:textColor="@color/white"
-        android:text="Show Timeline"
+        android:text="@string/show_timeline"
         android:background="@color/tw__blue_default"
         android:layout_marginTop="10dp"
         android:padding="15dp"/>

@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Twitter Application</string>
+
+    <string name="pull_to_refresh_pull_label">اسحب للتحديث...</string>
+    <string name="pull_to_refresh_release_label">إطلق للتحديث...</string>
+    <string name="pull_to_refresh_refreshing_label">تحميل...</string>
+    <string name="pull_to_refresh_tap_label">اضغط للتحديث...</string>
+
+    <string name="plz_wait_loading">جاري التحميل.. من فضلك انتظر</string>
+    <string name="connection_error">خطأ في الاتصال</string>
+    <string name="select_saved_user">اختار من المسجليين سابقا</string>
+    <string name="show_timeline">اظهر التايم لاين</string>
+
+    <string name="english">English</string>
+    <string name="arabic">عربي</string>
+
+
+</resources>

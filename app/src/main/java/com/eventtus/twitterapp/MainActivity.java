@@ -4,10 +4,13 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -30,6 +33,7 @@ import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import io.fabric.sdk.android.Fabric;
@@ -40,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     ProgressDialog pd;
     Spinner spinner;
     List<String> savedLoginsList;
+    Locale locale;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             @Override
             public void failure(TwitterException exception) {
                 Log.d("Error", "Login with Twitter failure", exception);
-                Toast.makeText(getApplicationContext(), "Connection Error !!",Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), getResources().getString(R.string.connection_error),Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -116,7 +121,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     void getViews(){
-        String pdw = "Loading.. Please wait";
+        String pdw = getResources().getString(R.string.plz_wait_loading);
         pd = new ProgressDialog(this);
         pd.setCancelable(false);
         pd.setMessage(pdw);
@@ -151,7 +156,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             @Override
             public void failure(TwitterException e) {
                 Log.e("Mabr0o0o0o0o0ok !! ", "failed to download data");
-                Toast.makeText(getApplicationContext(), "Connection Error !!",Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), getResources().getString(R.string.connection_error),Toast.LENGTH_LONG).show();
                 getDataFromSharedPref();
                 if(pd.isShowing()) pd.dismiss();
                 Intent intent = new Intent(MainActivity.this, FollowersActivity.class);
@@ -186,7 +191,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     void getAllSharedPref(){
-        savedLoginsList.add("Select from saved Users");
+        savedLoginsList.add(getResources().getString(R.string.select_saved_user));
         Globals.prefs = getSharedPreferences("TwitterApp", Context.MODE_PRIVATE);
             Map<String,?> keys = Globals.prefs.getAll();
 
@@ -195,9 +200,40 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     savedLoginsList.add(entry.getKey());
                 }
 
-                Log.d("map values",entry.getKey() + " : " +
+                Log.d("attia map values",entry.getKey() + " : " +
                         entry.getValue().toString());
             }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);//Menu Resource, Menu
+        return true;
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.english:
+                changeLanguage("en");
+                return true;
+            case R.id.arabic:
+                changeLanguage("ar");
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    void changeLanguage(String lang){
+        locale = new Locale(lang);
+        Locale.setDefault(locale);
+        Configuration config = new Configuration();
+        config.locale = locale;
+        getResources().updateConfiguration(config, getResources().getDisplayMetrics());
+        Intent intent = getIntent();
+        finish();
+        startActivity(intent);
     }
 
 }// end of class
